@@ -4,72 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="pyla-ui-token" content="{{ ui_api_token }}">
-    <title>PylaAI Public</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/startup-cover.svg') }}">
+    <title>FruxX AI</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/fruxx-sk.svg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
     <style>
-        body {
-            background: #05080d;
-        }
-
-        #startupCover {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            opacity: 0.62;
-            background: url("{{ url_for('static', filename='images/startup-cover.svg') }}") center center / cover no-repeat;
-            filter: grayscale(1) contrast(1.15) brightness(0.72);
-        }
-
-        .app-layout,
-        .main-content,
-        .sidebar,
-        .topbar,
-        .views-scroll-shell,
-        #tooltip,
-        #toast {
-            position: relative;
-            z-index: 1;
-        }
-
-        .tips-band,
-        .tips-band * {
-            display: none !important;
-        }
-
-        .sidebar-link.github-link {
-            color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.02);
-        }
+        :root { --font: Arial, Helvetica, sans-serif; }
+        .brand { gap: 12px; }
+        .brand-mark { width: 48px; height: 48px; flex: 0 0 auto; }
+        .brand-title { color: var(--text-primary); }
+        .brand-title span { color: var(--text-primary); }
+        .sidebar-footer { padding-top: 14px; }
     </style>
 </head>
 <body>
     <div id="vfx-bg"></div>
-    <div id="startupCover" aria-hidden="true"></div>
     <div class="app-layout">
         <aside id="appSidebar" class="sidebar" aria-label="Primary navigation">
             <div class="brand">
-                <img class="brand-logo" src="/api/assets/support/logo_no_background.png" alt="PylaAI logo">
-                <div class="brand-copy"><h1 class="brand-title">Pyla<span>AI</span></h1></div>
+                <img class="brand-mark" src="{{ url_for('static', filename='images/fruxx-sk.svg') }}" alt="SK">
+                <div class="brand-copy"><h1 class="brand-title">FruxX <span>AI</span></h1></div>
                 <button id="sidebarClose" class="sidebar-close" type="button" aria-label="Close navigation menu">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <p class="official-note">PylaAI is free and open-source.</p>
             <nav class="nav-menu"></nav>
             <div class="sidebar-footer">
-                <div class="sidebar-links" aria-label="PylaAI links">
-                    <a class="sidebar-link github-link" href="https://github.com/PylaAI/PylaAI" target="_blank" rel="noreferrer noopener" data-tooltip="Source code on GitHub">
-                        <img src="/api/assets/support/github.svg" alt="GitHub">
-                        <span>GitHub</span>
-                    </a>
-                </div>
-                <div id="sidebarVersion" class="sidebar-version">PylaAI Public</div>
+                <div id="sidebarVersion" class="sidebar-version">FruxX AI</div>
             </div>
         </aside>
         <button id="sidebarBackdrop" class="sidebar-backdrop" type="button" aria-label="Close navigation menu" tabindex="-1"></button>
@@ -84,7 +44,6 @@
                     </button>
                     <h2 id="pageTitle" class="page-title">Dashboard</h2>
                 </div>
-
                 <div class="header-actions">
                     <label class="language-selector" title="Choose interface language" data-i18n-skip>
                         <select id="languageSelect" aria-label="Choose interface language">
@@ -107,7 +66,9 @@
                     <section id="view-logs" class="view"></section>
                     <section id="view-settings" class="view"></section>
                 </div>
-                <div id="mainViewScrollbar" class="app-scrollbar main-view-scrollbar" role="scrollbar" aria-controls="viewsWrapper" aria-orientation="vertical" aria-label="Scroll current page" tabindex="0"></div>
+                <div id="mainViewScrollbar" class="app-scrollbar main-view-scrollbar" role="scrollbar" aria-controls="viewsWrapper" aria-orientation="vertical" aria-label="Scroll current page" tabindex="0">
+                    <div id="mainViewScrollbarThumb" class="app-scrollbar-thumb"></div>
+                </div>
             </div>
             <div id="queueDock" class="queue-dock hidden"></div>
         </main>
@@ -117,38 +78,35 @@
 
     <script>
         (() => {
-            const externalPatterns = [
-                "discord",
-                "angelfire",
-                "premium",
-                "patreon",
-                "store",
-                "shop",
-                "buy",
-                "paypal",
-                "gumroad",
-                "ko-fi",
-                "itch.io"
-            ];
-
-            const cleanup = () => {
-                document.querySelectorAll("#tipsBand, .tips-band, #announcementModal, #premiumFeatureModal").forEach((node) => node.remove());
-                document.querySelectorAll("a[href]").forEach((anchor) => {
-                    const href = (anchor.getAttribute("href") || "").toLowerCase();
-                    if (!href) return;
-                    const isExternal = externalPatterns.some((pattern) => href.includes(pattern));
-                    if (isExternal && !href.includes("github.com")) {
-                        anchor.remove();
+            const brandText = value => String(value).replace(/Pyla\s*AI|PylaAI|Pyla/gi, "FruxX AI");
+            const updateText = node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const replacement = brandText(node.nodeValue);
+                    if (replacement !== node.nodeValue) node.nodeValue = replacement;
+                    return;
+                }
+                if (node.nodeType !== Node.ELEMENT_NODE || ["SCRIPT", "STYLE"].includes(node.tagName)) return;
+                for (const attr of ["title", "aria-label", "alt", "placeholder"]) {
+                    if (node.hasAttribute(attr)) {
+                        const value = brandText(node.getAttribute(attr));
+                        if (value !== node.getAttribute(attr)) node.setAttribute(attr, value);
                     }
-                });
+                }
+                node.childNodes.forEach(updateText);
             };
-
-            cleanup();
-            const observer = new MutationObserver(() => cleanup());
-            observer.observe(document.body, { childList: true, subtree: true });
+            const scrub = () => {
+                document.querySelectorAll("#tipsBand, .tips-band, #announcementModal, #premiumFeatureModal").forEach(node => node.remove());
+                document.querySelectorAll("a[href]").forEach(anchor => {
+                    const href = anchor.getAttribute("href") || "";
+                    if (/^(https?:)?\/\//i.test(href) || /^(mailto|tel):/i.test(href)) anchor.remove();
+                });
+                updateText(document.body);
+                document.title = "FruxX AI";
+            };
+            scrub();
+            new MutationObserver(scrub).observe(document.body, { childList: true, subtree: true, characterData: true });
         })();
     </script>
-
     <script src="{{ url_for('static', filename='js/i18n_es_ko.js') }}"></script>
     <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
